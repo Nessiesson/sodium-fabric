@@ -1,13 +1,13 @@
 package me.jellysquid.mods.sodium.client.model.vertex.formats.particle;
 
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.formats.particle.writer.ParticleVertexBufferWriterNio;
 import me.jellysquid.mods.sodium.client.model.vertex.formats.particle.writer.ParticleVertexBufferWriterUnsafe;
 import me.jellysquid.mods.sodium.client.model.vertex.formats.particle.writer.ParticleVertexWriterFallback;
 import me.jellysquid.mods.sodium.client.model.vertex.type.BlittableVertexType;
 import me.jellysquid.mods.sodium.client.model.vertex.type.VanillaVertexType;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 
 public class ParticleVertexType implements VanillaVertexType<ParticleVertexSink>, BlittableVertexType<ParticleVertexSink> {
     @Override
@@ -16,7 +16,7 @@ public class ParticleVertexType implements VanillaVertexType<ParticleVertexSink>
     }
 
     @Override
-    public ParticleVertexSink createFallbackWriter(VertexConsumer consumer) {
+    public ParticleVertexSink createFallbackWriter(IVertexBuilder consumer) {
         return new ParticleVertexWriterFallback(consumer);
     }
 

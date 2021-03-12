@@ -2,7 +2,7 @@ package me.jellysquid.mods.sodium.client.gl.shader;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttribute;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
@@ -14,14 +14,14 @@ import org.lwjgl.opengl.GL20;
 public abstract class GlProgram extends GlObject {
     private static final Logger LOGGER = LogManager.getLogger(GlProgram.class);
 
-    private final Identifier name;
+    private final ResourceLocation name;
 
-    protected GlProgram(Identifier name, int program) {
+    protected GlProgram(ResourceLocation name, int program) {
         this.name = name;
         this.setHandle(program);
     }
 
-    public static Builder builder(Identifier identifier) {
+    public static Builder builder(ResourceLocation identifier) {
         return new Builder(identifier);
     }
 
@@ -33,7 +33,7 @@ public abstract class GlProgram extends GlObject {
         GL20.glUseProgram(0);
     }
 
-    public Identifier getName() {
+    public ResourceLocation getName() {
         return this.name;
     }
 
@@ -76,10 +76,10 @@ public abstract class GlProgram extends GlObject {
     }
 
     public static class Builder {
-        private final Identifier name;
+        private final ResourceLocation name;
         private final int program;
 
-        public Builder(Identifier name) {
+        public Builder(ResourceLocation name) {
             this.name = name;
             this.program = GL20.glCreateProgram();
         }
@@ -125,6 +125,6 @@ public abstract class GlProgram extends GlObject {
     }
 
     public interface ProgramFactory<P extends GlProgram> {
-        P create(Identifier name, int handle);
+        P create(ResourceLocation name, int handle);
     }
 }

@@ -1,9 +1,5 @@
 package me.jellysquid.mods.sodium.common.config;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.metadata.CustomValue;
-import net.fabricmc.loader.api.metadata.ModMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -94,6 +90,9 @@ public class SodiumConfig {
         }
     }
 
+    // dummy
+    private void applyModOverrides() {}
+    /*
     private void applyModOverrides() {
         for (ModContainer container : FabricLoader.getInstance().getAllMods()) {
             ModMetadata meta = container.getMetadata();
@@ -137,6 +136,7 @@ public class SodiumConfig {
             option.addModOverride(enabled, meta.getId());
         }
     }
+    */
 
     /**
      * Returns the effective option for the specified class name. This traverses the package path of the given mixin

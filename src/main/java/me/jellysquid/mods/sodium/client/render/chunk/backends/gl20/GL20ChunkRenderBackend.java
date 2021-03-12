@@ -1,10 +1,10 @@
 package me.jellysquid.mods.sodium.client.render.chunk.backends.gl20;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import me.jellysquid.mods.sodium.client.gl.util.MemoryTracker;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderContainer;
 import me.jellysquid.mods.sodium.client.render.chunk.oneshot.ChunkRenderBackendOneshot;
-import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 

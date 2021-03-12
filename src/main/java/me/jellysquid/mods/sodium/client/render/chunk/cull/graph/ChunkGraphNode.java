@@ -3,9 +3,9 @@ package me.jellysquid.mods.sodium.client.render.chunk.cull.graph;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
-import net.minecraft.client.render.chunk.ChunkOcclusionData;
+import net.minecraft.client.renderer.chunk.SetVisibility;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 public class ChunkGraphNode {
     private static final long DEFAULT_VISIBILITY_DATA = calculateVisibilityData(ChunkRenderData.EMPTY.getOcclusionData());
@@ -57,16 +57,16 @@ public class ChunkGraphNode {
         this.nodes[dir.ordinal()] = node;
     }
 
-    public void setOcclusionData(ChunkOcclusionData occlusionData) {
+    public void setOcclusionData(SetVisibility occlusionData) {
         this.visibilityData = calculateVisibilityData(occlusionData);
     }
 
-    private static long calculateVisibilityData(ChunkOcclusionData occlusionData) {
+    private static long calculateVisibilityData(SetVisibility occlusionData) {
         long visibilityData = 0;
 
         for (Direction from : DirectionUtil.ALL_DIRECTIONS) {
             for (Direction to : DirectionUtil.ALL_DIRECTIONS) {
-                if (occlusionData == null || occlusionData.isVisibleThrough(from, to)) {
+                if (occlusionData == null || occlusionData.isVisible(from, to)) {
                     visibilityData |= (1L << ((from.ordinal() << 3) + to.ordinal()));
                 }
             }

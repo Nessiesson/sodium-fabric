@@ -15,12 +15,12 @@ import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import me.jellysquid.mods.sodium.client.world.biome.BiomeCacheManager;
 import me.jellysquid.mods.sodium.common.util.collections.DequeDrain;
 import me.jellysquid.mods.sodium.common.util.pool.ObjectPool;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.Vector3d;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.SectionPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.Chunk;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -86,7 +86,7 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
             throw new IllegalStateException("Threads are still alive while in the STOPPED state");
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
         for (int i = 0; i < this.limitThreads; i++) {
             ChunkBuildBuffers buffers = new ChunkBuildBuffers(this.vertexType, this.renderPassManager);
@@ -216,7 +216,7 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
 
         this.world = world;
         this.renderPassManager = renderPassManager;
-        this.biomeCacheManager = new BiomeCacheManager(world.getDimension().getBiomeAccessType(), ((ClientWorldExtended) world).getBiomeSeed());
+        this.biomeCacheManager = new BiomeCacheManager(world.getDimensionType().getMagnifier(), ((ClientWorldExtended) world).getBiomeSeed());
 
         this.startWorkers();
     }
@@ -234,8 +234,8 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
      * @param pos The position of the chunk section
      * @return A world slice containing the section's context for rendering, or null if it has none
      */
-    public WorldSlice createWorldSlice(ChunkSectionPos pos) {
-        WorldChunk[] chunks = WorldSlice.createChunkSlice(this.world, pos);
+    public WorldSlice createWorldSlice(SectionPos pos) {
+        Chunk[] chunks = WorldSlice.createChunkSlice(this.world, pos);
 
         if (chunks == null) {
             return null;

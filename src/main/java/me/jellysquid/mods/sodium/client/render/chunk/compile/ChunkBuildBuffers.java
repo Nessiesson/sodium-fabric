@@ -14,8 +14,8 @@ import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkModelOffset;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPassManager;
 import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.util.GlAllocationUtils;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.RenderType;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -42,13 +42,13 @@ public class ChunkBuildBuffers {
 
         this.offset = new ChunkModelOffset();
 
-        for (RenderLayer layer : RenderLayer.getBlockLayers()) {
+        for (RenderType layer : RenderType.getBlockRenderTypes()) {
             int passId = this.renderPassManager.getRenderPassId(layer);
 
             VertexBufferBuilder[] buffers = this.buffersByLayer[passId];
 
             for (ModelQuadFacing facing : ModelQuadFacing.VALUES) {
-                buffers[facing.ordinal()] = new VertexBufferBuilder(vertexType.getBufferVertexFormat(), layer.getExpectedBufferSize() / ModelQuadFacing.COUNT);
+                buffers[facing.ordinal()] = new VertexBufferBuilder(vertexType.getBufferVertexFormat(), layer.getBufferSize() / ModelQuadFacing.COUNT);
             }
         }
     }
@@ -66,10 +66,10 @@ public class ChunkBuildBuffers {
     }
 
     /**
-     * Return the {@link ChunkModelVertexTransformer} for the given {@link RenderLayer} as mapped by the
+     * Return the {@link ChunkModelVertexTransformer} for the given {@link RenderType} as mapped by the
      * {@link BlockRenderPassManager} for this render context.
      */
-    public ChunkModelBuffers get(RenderLayer layer) {
+    public ChunkModelBuffers get(RenderType layer) {
         return this.delegates[this.renderPassManager.getRenderPassId(layer)];
     }
 
@@ -102,7 +102,7 @@ public class ChunkBuildBuffers {
             return null;
         }
 
-        ByteBuffer buffer = GlAllocationUtils.allocateByteBuffer(bufferLen);
+        ByteBuffer buffer = GLAllocation.createDirectByteBuffer(bufferLen);
 
         for (Map.Entry<ModelQuadFacing, BufferSlice> entry : meshData.getSlices()) {
             BufferSlice slice = entry.getValue();

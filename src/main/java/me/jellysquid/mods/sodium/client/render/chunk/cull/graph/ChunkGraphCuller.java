@@ -6,13 +6,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.sodium.client.render.chunk.cull.ChunkCuller;
 import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.chunk.ChunkOcclusionData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.chunk.SetVisibility;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.SectionPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class ChunkGraphCuller implements ChunkCuller {
     }
 
     @Override
-    public IntArrayList computeVisible(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
+    public IntArrayList computeVisible(ActiveRenderInfo camera, FrustumExtended frustum, int frame, boolean spectator) {
         this.initSearch(camera, frustum, frame, spectator);
 
         ChunkGraphIterationQueue queue = this.visible;
@@ -70,10 +70,10 @@ public class ChunkGraphCuller implements ChunkCuller {
         return this.useOcclusionCulling && from != null && !node.isVisibleThrough(from, to);
     }
 
-    private void initSearch(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
+    private void initSearch(ActiveRenderInfo camera, FrustumExtended frustum, int frame, boolean spectator) {
         this.activeFrame = frame;
         this.frustum = frustum;
-        this.useOcclusionCulling = MinecraftClient.getInstance().chunkCullingEnabled;
+        this.useOcclusionCulling = Minecraft.getInstance().renderChunksMany;
 
         this.visible.clear();
 
@@ -89,7 +89,7 @@ public class ChunkGraphCuller implements ChunkCuller {
             rootNode.resetCullingState();
             rootNode.setLastVisibleFrame(frame);
 
-            if (spectator && this.world.getBlockState(origin).isOpaqueFullCube(this.world, origin)) {
+            if (spectator && this.world.getBlockState(origin).isOpaqueCube(this.world, origin)) {
                 this.useOcclusionCulling = false;
             }
 
@@ -163,15 +163,15 @@ public class ChunkGraphCuller implements ChunkCuller {
     }
 
     private ChunkGraphNode findAdjacentNode(ChunkGraphNode node, Direction dir) {
-        return this.getNode(node.getChunkX() + dir.getOffsetX(), node.getChunkY() + dir.getOffsetY(), node.getChunkZ() + dir.getOffsetZ());
+        return this.getNode(node.getChunkX() + dir.getXOffset(), node.getChunkY() + dir.getYOffset(), node.getChunkZ() + dir.getZOffset());
     }
 
     private ChunkGraphNode getNode(int x, int y, int z) {
-        return this.nodes.get(ChunkSectionPos.asLong(x, y, z));
+        return this.nodes.get(SectionPos.asLong(x, y, z));
     }
 
     @Override
-    public void onSectionStateChanged(int x, int y, int z, ChunkOcclusionData occlusionData) {
+    public void onSectionStateChanged(int x, int y, int z, SetVisibility occlusionData) {
         ChunkGraphNode node = this.getNode(x, y, z);
 
         if (node != null) {
@@ -184,7 +184,7 @@ public class ChunkGraphCuller implements ChunkCuller {
         ChunkGraphNode node = new ChunkGraphNode(x, y, z, id);
         ChunkGraphNode prev;
 
-        if ((prev = this.nodes.put(ChunkSectionPos.asLong(x, y, z), node)) != null) {
+        if ((prev = this.nodes.put(SectionPos.asLong(x, y, z), node)) != null) {
             this.disconnectNeighborNodes(prev);
         }
 
@@ -193,7 +193,7 @@ public class ChunkGraphCuller implements ChunkCuller {
 
     @Override
     public void onSectionUnloaded(int x, int y, int z) {
-        ChunkGraphNode node = this.nodes.remove(ChunkSectionPos.asLong(x, y, z));
+        ChunkGraphNode node = this.nodes.remove(SectionPos.asLong(x, y, z));
 
         if (node != null) {
             this.disconnectNeighborNodes(node);

@@ -1,8 +1,8 @@
 package me.jellysquid.mods.sodium.client.model.light.cache;
 
 import me.jellysquid.mods.sodium.client.model.light.data.LightDataAccess;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.BlockRenderView;
+import net.minecraft.util.math.SectionPos;
+import net.minecraft.world.IBlockDisplayReader;
 
 import java.util.Arrays;
 
@@ -23,12 +23,12 @@ public class ArrayLightDataCache extends LightDataAccess {
         this.light = new long[BLOCK_LENGTH * BLOCK_LENGTH * BLOCK_LENGTH];
     }
 
-    public void init(BlockRenderView world, ChunkSectionPos origin) {
+    public void init(IBlockDisplayReader world, SectionPos origin) {
         this.world = world;
 
-        this.xOffset = origin.getMinX() - NEIGHBOR_BLOCK_RADIUS;
-        this.yOffset = origin.getMinY() - NEIGHBOR_BLOCK_RADIUS;
-        this.zOffset = origin.getMinZ() - NEIGHBOR_BLOCK_RADIUS;
+        this.xOffset = origin.getWorldStartX() - NEIGHBOR_BLOCK_RADIUS;
+        this.yOffset = origin.getWorldStartY() - NEIGHBOR_BLOCK_RADIUS;
+        this.zOffset = origin.getWorldStartZ() - NEIGHBOR_BLOCK_RADIUS;
 
         Arrays.fill(this.light, 0L);
     }

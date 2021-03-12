@@ -1,6 +1,8 @@
 package me.jellysquid.mods.sodium.client.gui.widgets;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -17,7 +19,7 @@ public abstract class AbstractWidget implements Drawable, Element {
     protected final TextRenderer font;
 
     protected AbstractWidget() {
-        this.font = MinecraftClient.getInstance().textRenderer;
+        this.font = Minecraft.getInstance().fontRenderer;
     }
 
     protected void drawString(MatrixStack matrixStack, String str, int x, int y, int color) {

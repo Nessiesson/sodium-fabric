@@ -2,9 +2,9 @@ package me.jellysquid.mods.sodium.client.world.biome;
 
 import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.SectionPos;
 import net.minecraft.world.level.ColorResolver;
 
 import java.util.Arrays;
@@ -23,12 +23,12 @@ public class BiomeColorCache {
     public BiomeColorCache(ColorResolver resolver, WorldSlice slice) {
         this.resolver = resolver;
         this.slice = slice;
-        this.radius = MinecraftClient.getInstance().options.biomeBlendRadius;
+        this.radius = Minecraft.getInstance().gameSettings.biomeBlendRadius;
 
-        ChunkSectionPos origin = this.slice.getOrigin();
+        SectionPos origin = this.slice.getOrigin();
 
-        this.minX = origin.getMinX() - (this.radius + 2);
-        this.minZ = origin.getMinZ() - (this.radius + 2);
+        this.minX = origin.getWorldStartX() - (this.radius + 2);
+        this.minZ = origin.getWorldStartZ() - (this.radius + 2);
 
         this.dim = 16 + ((this.radius + 2) * 2);
 

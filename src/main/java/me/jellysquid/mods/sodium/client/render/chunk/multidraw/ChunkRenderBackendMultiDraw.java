@@ -8,7 +8,7 @@ import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkFogMode;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkRenderShaderBackend;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.ResourceLocation;
 
 public abstract class ChunkRenderBackendMultiDraw<T extends ChunkGraphicsState> extends ChunkRenderShaderBackend<T, ChunkProgramMultiDraw> {
     public ChunkRenderBackendMultiDraw(ChunkVertexType format) {
@@ -16,19 +16,19 @@ public abstract class ChunkRenderBackendMultiDraw<T extends ChunkGraphicsState> 
     }
 
     @Override
-    protected ChunkProgramMultiDraw createShaderProgram(Identifier name, int handle, ChunkFogMode fogMode) {
+    protected ChunkProgramMultiDraw createShaderProgram(ResourceLocation name, int handle, ChunkFogMode fogMode) {
         return new ChunkProgramMultiDraw(name, handle, fogMode.getFactory());
     }
 
     @Override
     protected GlShader createVertexShader(ChunkFogMode fogMode) {
-        return ShaderLoader.loadShader(ShaderType.VERTEX, new Identifier("sodium", "chunk_gl20.v.glsl"),
+        return ShaderLoader.loadShader(ShaderType.VERTEX, new ResourceLocation("sodium", "chunk_gl20.v.glsl"),
                 this.createShaderConstants(fogMode));
     }
 
     @Override
     protected GlShader createFragmentShader(ChunkFogMode fogMode) {
-        return ShaderLoader.loadShader(ShaderType.FRAGMENT, new Identifier("sodium", "chunk_gl20.f.glsl"),
+        return ShaderLoader.loadShader(ShaderType.FRAGMENT, new ResourceLocation("sodium", "chunk_gl20.f.glsl"),
                 this.createShaderConstants(fogMode));
     }
 

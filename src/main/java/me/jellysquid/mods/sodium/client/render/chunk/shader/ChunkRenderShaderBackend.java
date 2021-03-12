@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.chunk.shader;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
 import me.jellysquid.mods.sodium.client.gl.shader.GlProgram;
 import me.jellysquid.mods.sodium.client.gl.shader.GlShader;
@@ -7,8 +8,7 @@ import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderBackend;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkMeshAttribute;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.EnumMap;
 
@@ -38,7 +38,7 @@ public abstract class ChunkRenderShaderBackend<T extends ChunkGraphicsState, P e
         GlShader fragShader = this.createFragmentShader(fogMode);
 
         try {
-            return GlProgram.builder(new Identifier("sodium", "chunk_shader"))
+            return GlProgram.builder(new ResourceLocation("sodium", "chunk_shader"))
                     .attachShader(vertShader)
                     .attachShader(fragShader)
                     .bindAttribute("a_Pos", format.getAttribute(ChunkMeshAttribute.POSITION))
@@ -56,7 +56,7 @@ public abstract class ChunkRenderShaderBackend<T extends ChunkGraphicsState, P e
 
     protected abstract GlShader createVertexShader(ChunkFogMode fogMode);
 
-    protected abstract P createShaderProgram(Identifier name, int handle, ChunkFogMode fogMode);
+    protected abstract P createShaderProgram(ResourceLocation name, int handle, ChunkFogMode fogMode);
 
     @Override
     public void begin(MatrixStack matrixStack) {

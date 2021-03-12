@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.chunk;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -27,13 +28,12 @@ import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import me.jellysquid.mods.sodium.common.util.IdTable;
 import me.jellysquid.mods.sodium.common.util.collections.FutureDequeDrain;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.ArrayDeque;
@@ -74,7 +74,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     private final ChunkRenderList<T>[] chunkRenderLists = new ChunkRenderList[BlockRenderPass.COUNT];
     private final ObjectList<ChunkRenderContainer<T>> tickableChunks = new ObjectArrayList<>();
 
-    private final ObjectList<BlockEntity> visibleBlockEntities = new ObjectArrayList<>();
+    private final ObjectList<TileEntity> visibleBlockEntities = new ObjectArrayList<>();
 
     private final SodiumWorldRenderer renderer;
     private final ClientWorld world;
@@ -108,7 +108,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         this.useChunkFaceCulling = SodiumClientMod.options().advanced.useChunkFaceCulling;
     }
 
-    public void update(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
+    public void update(ActiveRenderInfo camera, FrustumExtended frustum, int frame, boolean spectator) {
         this.reset();
 
         this.setup(camera);
@@ -117,8 +117,8 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         this.dirty = false;
     }
 
-    private void setup(Camera camera) {
-        Vec3d cameraPos = camera.getPos();
+    private void setup(ActiveRenderInfo camera) {
+        Vector3d cameraPos = camera.getProjectedView();
 
         this.cameraX = (float) cameraPos.x;
         this.cameraY = (float) cameraPos.y;
@@ -136,7 +136,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         }
     }
 
-    private void iterateChunks(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
+    private void iterateChunks(ActiveRenderInfo camera, FrustumExtended frustum, int frame, boolean spectator) {
         IntList list = this.culler.computeVisible(camera, frustum, frame, spectator);
         IntIterator it = list.iterator();
 
@@ -235,7 +235,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     private void addEntitiesToRenderLists(ChunkRenderContainer<T> render) {
-        Collection<BlockEntity> blockEntities = render.getData().getBlockEntities();
+        Collection<TileEntity> blockEntities = render.getData().getBlockEntities();
 
         if (!blockEntities.isEmpty()) {
             this.visibleBlockEntities.addAll(blockEntities);
@@ -243,7 +243,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     public ChunkRenderContainer<T> getRender(int x, int y, int z) {
-        ChunkRenderColumn<T> column = this.columns.get(ChunkPos.toLong(x, z));
+        ChunkRenderColumn<T> column = this.columns.get(ChunkPos.asLong(x, z));
 
         if (column == null) {
             return null;
@@ -267,7 +267,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         this.visibleChunkCount = 0;
     }
 
-    public Collection<BlockEntity> getVisibleBlockEntities() {
+    public Collection<TileEntity> getVisibleBlockEntities() {
         return this.visibleBlockEntities;
     }
 
@@ -287,7 +287,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         ChunkRenderColumn<T> column = new ChunkRenderColumn<>(x, z);
         ChunkRenderColumn<T> prev;
 
-        if ((prev = this.columns.put(ChunkPos.toLong(x, z), column)) != null) {
+        if ((prev = this.columns.put(ChunkPos.asLong(x, z), column)) != null) {
             this.unloadSections(prev);
         }
 
@@ -298,7 +298,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     private void unloadChunk(int x, int z) {
-        ChunkRenderColumn<T> column = this.columns.remove(ChunkPos.toLong(x, z));
+        ChunkRenderColumn<T> column = this.columns.remove(ChunkPos.asLong(x, z));
 
         if (column == null) {
             return;
@@ -364,17 +364,17 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     private ChunkRenderColumn<T> getAdjacentColumn(ChunkRenderColumn<T> column, Direction dir) {
-        return this.getColumn(column.getX() + dir.getOffsetX(), column.getZ() + dir.getOffsetZ());
+        return this.getColumn(column.getX() + dir.getXOffset(), column.getZ() + dir.getZOffset());
     }
 
     private ChunkRenderColumn<T> getColumn(int x, int z) {
-        return this.columns.get(ChunkPos.toLong(x, z));
+        return this.columns.get(ChunkPos.asLong(x, z));
     }
 
     private ChunkRenderContainer<T> createChunkRender(ChunkRenderColumn<T> column, int x, int y, int z) {
         ChunkRenderContainer<T> render = new ChunkRenderContainer<>(this.backend, this.renderer, x, y, z, column);
 
-        if (ChunkSection.isEmpty(this.world.getChunk(x, z).getSectionArray()[y])) {
+        if (ChunkSection.isEmpty(this.world.getChunk(x, z).getSections()[y])) {
             render.setData(ChunkRenderData.EMPTY);
         } else {
             render.scheduleRebuild(false);
@@ -455,7 +455,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         while (it.hasNext()) {
             long pos = it.nextLong();
 
-            this.loadChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos));
+            this.loadChunk(ChunkPos.getX(pos), ChunkPos.getZ(pos));
         }
     }
 

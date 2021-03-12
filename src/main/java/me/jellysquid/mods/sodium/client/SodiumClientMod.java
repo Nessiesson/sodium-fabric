@@ -12,11 +12,6 @@ public class SodiumClientMod implements ClientModInitializer {
     private static SodiumGameOptions CONFIG;
     private static Logger LOGGER;
 
-    @Override
-    public void onInitializeClient() {
-
-    }
-
     public static SodiumGameOptions options() {
         if (CONFIG == null) {
             CONFIG = loadConfig();
