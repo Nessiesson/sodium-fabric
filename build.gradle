@@ -42,7 +42,7 @@ dependencies {
 }
 
 mixin {
-    add sourceSets.main, "mixins.${modId}.refmap.json"
+    add sourceSets.main, "${modId}.mixins.refmap.json"
 }
 
 jar.manifest.attributes([

@@ -1,0 +1,10 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+license = "MIT"
+
+[[mods]]
+modId = "sodium"
+version = "${file.jarVersion}"
+displayName = "Sodium"
+authors = "JellySquid et.al"
+description = "sodium"

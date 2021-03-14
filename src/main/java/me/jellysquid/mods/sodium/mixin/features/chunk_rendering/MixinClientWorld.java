@@ -36,7 +36,7 @@ public abstract class MixinClientWorld implements ClientWorldExtended {
      * features needed to pull off event-based rendering.
      */
     @Dynamic
-    @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/client/world/ClientChunkManager"))
+    @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/client/multiplayer/ClientChunkProvider"))
     private static ClientChunkProvider redirectCreateChunkManager(ClientWorld world, int renderDistance) {
         return new SodiumChunkManager(world, renderDistance);
     }

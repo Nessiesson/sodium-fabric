@@ -11,13 +11,13 @@ import me.jellysquid.mods.sodium.client.gui.options.control.TickBoxControl;
 import me.jellysquid.mods.sodium.client.gui.options.storage.MinecraftOptionsStorage;
 import me.jellysquid.mods.sodium.client.gui.options.storage.SodiumOptionsStorage;
 import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.options.AttackIndicator;
-import net.minecraft.client.options.GraphicsMode;
-import net.minecraft.client.options.Option;
-import net.minecraft.client.options.ParticlesMode;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.AbstractOption;
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.AttackIndicatorStatus;
+import net.minecraft.client.settings.GraphicsFanciness;
+import net.minecraft.client.settings.ParticleStatus;
+import net.minecraft.client.shader.Framebuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class SodiumGameOptionPages {
                         .setTooltip("The view distance controls how far away terrain will be rendered. Lower distances mean that less terrain will be " +
                                 "rendered, improving frame rates.")
                         .setControl(option -> new SliderControl(option, 2, 32, 1, ControlValueFormatter.quantity("Chunks")))
-                        .setBinding((options, value) -> options.viewDistance = value, options -> options.viewDistance)
+                        .setBinding((options, value) -> options.renderDistanceChunks = value, options -> options.renderDistanceChunks)
                         .setImpact(OptionImpact.HIGH)
                         .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build())
@@ -52,10 +52,10 @@ public class SodiumGameOptionPages {
                         .setBinding((opts, value) -> {
                             opts.quality.enableClouds = value;
 
-                            if (MinecraftClient.isFabulousGraphicsOrBetter()) {
-                                Framebuffer framebuffer = MinecraftClient.getInstance().worldRenderer.getCloudsFramebuffer();
+                            if (Minecraft.isFabulousGraphicsEnabled()) {
+                                Framebuffer framebuffer = Minecraft.getInstance().worldRenderer.func_239232_u_();
                                 if (framebuffer != null) {
-                                    framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
+                                    framebuffer.framebufferClear(Minecraft.IS_RUNNING_ON_MAC);
                                 }
                             }
                         }, (opts) -> opts.quality.enableClouds)
@@ -72,8 +72,8 @@ public class SodiumGameOptionPages {
                         .setBinding((opts, value) -> {
                             opts.guiScale = value;
 
-                            MinecraftClient client = MinecraftClient.getInstance();
-                            client.onResolutionChanged();
+                            Minecraft client = Minecraft.getInstance();
+                            client.updateWindowSize();
                         }, opts -> opts.guiScale)
                         .build())
                 .add(OptionImpl.createBuilder(boolean.class, vanillaOpts)
@@ -83,10 +83,10 @@ public class SodiumGameOptionPages {
                         .setBinding((opts, value) -> {
                             opts.fullscreen = value;
 
-                            MinecraftClient client = MinecraftClient.getInstance();
-                            Window window = client.getWindow();
+                            Minecraft client = Minecraft.getInstance();
+                            MainWindow window = client.getMainWindow();
 
-                            if (window != null && window.isFullscreen() != opts.fullscreen) {
+                            if (window.isFullscreen() != opts.fullscreen) {
                                 window.toggleFullscreen();
 
                                 // The client might not be able to enter full-screen mode
@@ -99,7 +99,7 @@ public class SodiumGameOptionPages {
                         .setTooltip("If enabled, the game's frame rate will be synchronized to the monitor's refresh rate, making for a generally smoother experience " +
                                 "at the expense of overall input latency. This setting might reduce performance if your system is too slow.")
                         .setControl(TickBoxControl::new)
-                        .setBinding(new VanillaBooleanOptionBinding(Option.VSYNC))
+                        .setBinding(new VanillaBooleanOptionBinding(AbstractOption.VSYNC))
                         .setImpact(OptionImpact.VARIES)
                         .build())
                 .add(OptionImpl.createBuilder(int.class, vanillaOpts)
@@ -109,9 +109,9 @@ public class SodiumGameOptionPages {
                                 "display's refresh rate.")
                         .setControl(option -> new SliderControl(option, 5, 260, 5, ControlValueFormatter.fpsLimit()))
                         .setBinding((opts, value) -> {
-                            opts.maxFps = value;
-                            MinecraftClient.getInstance().getWindow().setFramerateLimit(value);
-                        }, opts -> opts.maxFps)
+                            opts.framerateLimit = value;
+                            Minecraft.getInstance().getMainWindow().setFramerateLimit(value);
+                        }, opts -> opts.framerateLimit)
                         .build())
                 .build());
 
@@ -120,12 +120,12 @@ public class SodiumGameOptionPages {
                         .setName("View Bobbing")
                         .setTooltip("If enabled, the player's view will sway and bob when moving around. Players who suffer from motion sickness can benefit from disabling this.")
                         .setControl(TickBoxControl::new)
-                        .setBinding(new VanillaBooleanOptionBinding(Option.VIEW_BOBBING))
+                        .setBinding(new VanillaBooleanOptionBinding(AbstractOption.VIEW_BOBBING))
                         .build())
-                .add(OptionImpl.createBuilder(AttackIndicator.class, vanillaOpts)
+                .add(OptionImpl.createBuilder(AttackIndicatorStatus.class, vanillaOpts)
                         .setName("Attack Indicator")
                         .setTooltip("Controls where the Attack Indicator is displayed on screen.")
-                        .setControl(opts -> new CyclingControl<>(opts, AttackIndicator.class, new String[] { "Off", "Crosshair", "Hotbar" }))
+                        .setControl(opts -> new CyclingControl<>(opts, AttackIndicatorStatus.class, new String[] { "Off", "Crosshair", "Hotbar" }))
                         .setBinding((opts, value) -> opts.attackIndicator = value, (opts) -> opts.attackIndicator)
                         .build())
                 .build());
@@ -137,14 +137,14 @@ public class SodiumGameOptionPages {
         List<OptionGroup> groups = new ArrayList<>();
 
         groups.add(OptionGroup.createBuilder()
-                .add(OptionImpl.createBuilder(GraphicsMode.class, vanillaOpts)
+                .add(OptionImpl.createBuilder(GraphicsFanciness.class, vanillaOpts)
                         .setName("Graphics Quality")
                         .setTooltip("The default graphics quality controls some legacy options and is necessary for mod compatibility. If the options below are left to " +
                                 "\"Default\", they will use this setting.")
-                        .setControl(option -> new CyclingControl<>(option, GraphicsMode.class, new String[] { "Fast", "Fancy", "Fabulous" }))
+                        .setControl(option -> new CyclingControl<>(option, GraphicsFanciness.class, new String[] { "Fast", "Fancy", "Fabulous" }))
                         .setBinding(
-                                (opts, value) -> opts.graphicsMode = value,
-                                opts -> opts.graphicsMode)
+                                (opts, value) -> opts.graphicFanciness = value,
+                                opts -> opts.graphicFanciness)
                         .setImpact(OptionImpact.HIGH)
                         .setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD)
                         .build())
@@ -165,10 +165,10 @@ public class SodiumGameOptionPages {
                         .setBinding((opts, value) -> opts.quality.weatherQuality = value, opts -> opts.quality.weatherQuality)
                         .setImpact(OptionImpact.MEDIUM)
                         .build())
-                .add(OptionImpl.createBuilder(ParticlesMode.class, vanillaOpts)
+                .add(OptionImpl.createBuilder(ParticleStatus.class, vanillaOpts)
                         .setName("Particle Quality")
                         .setTooltip("Controls the maximum number of particles which can be present on screen at any one time.")
-                        .setControl(opt -> new CyclingControl<>(opt, ParticlesMode.class, new String[] { "High", "Medium", "Low" }))
+                        .setControl(opt -> new CyclingControl<>(opt, ParticleStatus.class, new String[] { "High", "Medium", "Low" }))
                         .setBinding((opts, value) -> opts.particles = value, (opts) -> opts.particles)
                         .setImpact(OptionImpact.MEDIUM)
                         .build())

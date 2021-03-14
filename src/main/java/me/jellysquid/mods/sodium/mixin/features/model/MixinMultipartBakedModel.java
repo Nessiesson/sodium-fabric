@@ -35,7 +35,7 @@ public class MixinMultipartBakedModel {
      * @author JellySquid
      * @reason Avoid expensive allocations and replace bitfield indirection
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public List<BakedQuad> getQuads(BlockState state, Direction face, Random random, net.minecraftforge.client.model.data.IModelData modelData) {
         if (state == null) {
             return Collections.emptyList();

@@ -2,22 +2,28 @@ package me.jellysquid.mods.sodium.client;
 
 import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
 import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
-import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
-@Mod("sodium")
-public class SodiumClientMod {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final SodiumGameOptions CONFIG = loadConfig();
+public class SodiumClientModFabric /* implements ClientModInitializer */ {
+    private static SodiumGameOptions CONFIG;
+    private static Logger LOGGER;
 
     public static SodiumGameOptions options() {
+        if (CONFIG == null) {
+            CONFIG = loadConfig();
+        }
+
         return CONFIG;
     }
 
     public static Logger logger() {
+        if (LOGGER == null) {
+            LOGGER = LogManager.getLogger("Sodium");
+        }
+
         return LOGGER;
     }
 

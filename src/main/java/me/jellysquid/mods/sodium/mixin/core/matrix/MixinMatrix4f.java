@@ -278,7 +278,7 @@ public class MixinMatrix4f implements Matrix4fExtended {
         long addr = MemoryUtil.memAddress(buf);
 
         Unsafe unsafe = UnsafeUtil.instance();
-        unsafe.putFloat(addr + 0, this.m00);
+        unsafe.putFloat(addr, this.m00);
         unsafe.putFloat(addr + 4, this.m10);
         unsafe.putFloat(addr + 8, this.m20);
         unsafe.putFloat(addr + 12, this.m30);

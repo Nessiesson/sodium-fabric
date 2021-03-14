@@ -135,7 +135,7 @@ public class ChunkRenderContainer<T extends ChunkGraphicsState> {
 
     /**
      * Returns the chunk section position which this render refers to in the world.
-     * @return
+     * @return SectionPos
      */
     public SectionPos getChunkPos() {
         return SectionPos.of(this.chunkX, this.chunkY, this.chunkZ);

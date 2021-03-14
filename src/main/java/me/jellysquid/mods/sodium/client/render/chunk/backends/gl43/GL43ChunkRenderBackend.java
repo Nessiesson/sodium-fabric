@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Shader-based chunk renderer which makes use of a custom memory allocator on top of large buffer objects to allow
@@ -366,7 +364,7 @@ public class GL43ChunkRenderBackend extends ChunkRenderBackendMultiDraw<LCBGraph
     private static boolean isIntelGpu() {
         // We only care about Windows
         // The open-source drivers on Linux are not known to have driver bugs with multi-draw
-        if (Util.getOperatingSystem() != Util.OperatingSystem.WINDOWS) {
+        if (Util.getOSType() != Util.OS.WINDOWS) {
             return false;
         }
 
