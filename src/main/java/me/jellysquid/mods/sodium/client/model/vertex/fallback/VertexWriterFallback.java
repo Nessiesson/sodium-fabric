@@ -1,10 +1,11 @@
 package me.jellysquid.mods.sodium.client.model.vertex.fallback;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import me.jellysquid.mods.sodium.client.model.vertex.VertexSink;
+import net.minecraft.client.renderer.BufferBuilder;
 
 /**
- * The base implementation for a {@link VertexSink} which writes to a black-boxed {@link IVertexBuilder}. This is the
+ * The base implementation for a {@link VertexSink} which writes to a black-boxed {@link BufferBuilder}. This is the
  * fallback path used when direct-writing optimizations cannot be used because the drain has no accessible backing
  * memory. This implementation is very slow and should be avoided where possible.
  *
@@ -12,9 +13,9 @@ import me.jellysquid.mods.sodium.client.model.vertex.VertexSink;
  * to the backing implementation.
  */
 public abstract class VertexWriterFallback implements VertexSink {
-    protected final IVertexBuilder consumer;
+    protected final BufferBuilder consumer;
 
-    protected VertexWriterFallback(IVertexBuilder consumer) {
+    protected VertexWriterFallback(BufferBuilder consumer) {
         this.consumer = consumer;
     }
 

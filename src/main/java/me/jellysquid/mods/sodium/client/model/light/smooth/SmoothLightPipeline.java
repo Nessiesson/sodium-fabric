@@ -5,7 +5,8 @@ import me.jellysquid.mods.sodium.client.model.light.data.LightDataAccess;
 import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFlags;
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
@@ -65,7 +66,7 @@ public class SmoothLightPipeline implements LightPipeline {
     }
 
     @Override
-    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction face, boolean shade) {
+    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, EnumFacing face, boolean shade) {
         this.updateCachedData(pos.toLong());
 
         int flags = quad.getFlags();
@@ -84,7 +85,7 @@ public class SmoothLightPipeline implements LightPipeline {
         this.applySidedBrightness(out, face, shade);
     }
 
-    private void applySidedBrightness(QuadLightData out, Direction face, boolean shade) {
+    private void applySidedBrightness(QuadLightData out, EnumFacing face, boolean shade) {
         float brightness = this.lightCache.getWorld().func_230487_a_(face, shade);
         float[] br = out.br;
 
@@ -93,7 +94,7 @@ public class SmoothLightPipeline implements LightPipeline {
         }
     }
 
-    private void applyComplex(AoNeighborInfo neighborInfo, ModelQuadView quad, BlockPos pos, Direction dir, QuadLightData out, int flags) {
+    private void applyComplex(AoNeighborInfo neighborInfo, ModelQuadView quad, BlockPos pos, EnumFacing dir, QuadLightData out, int flags) {
         // If the model quad is aligned to the block face, use the corner blocks above this face
         // TODO: is this correct for outset faces? do we even handle that case at all?
         boolean offset = ModelQuadFlags.contains(flags, ModelQuadFlags.IS_ALIGNED);
@@ -122,7 +123,7 @@ public class SmoothLightPipeline implements LightPipeline {
         }
     }
 
-    private void applyInsetPartialFace(BlockPos pos, Direction dir, float n1d, float n2d, float[] w, int i, QuadLightData out) {
+    private void applyInsetPartialFace(BlockPos pos, EnumFacing dir, float n1d, float n2d, float[] w, int i, QuadLightData out) {
         AoFaceData n1 = this.getCachedFaceData(pos, dir, false);
 
         if (!n1.hasUnpackedLightData()) {
@@ -147,7 +148,7 @@ public class SmoothLightPipeline implements LightPipeline {
     /**
      * Calculates the light data for a grid-aligned quad that does not cover the entire block volume's face.
      */
-    private void applyAlignedPartialFace(BlockPos pos, Direction dir, float[] w, int i, QuadLightData out, boolean offset) {
+    private void applyAlignedPartialFace(BlockPos pos, EnumFacing dir, float[] w, int i, QuadLightData out, boolean offset) {
         AoFaceData faceData = this.getCachedFaceData(pos, dir, offset);
 
         if (!faceData.hasUnpackedLightData()) {
@@ -167,7 +168,7 @@ public class SmoothLightPipeline implements LightPipeline {
      * facing quads on a full-block model) and avoids interpolation between neighbors as each corner will only ever
      * have two contributing sides.
      */
-    private void applyAlignedFullFace(AoNeighborInfo neighborInfo, BlockPos pos, Direction dir, QuadLightData out, int flags) {
+    private void applyAlignedFullFace(AoNeighborInfo neighborInfo, BlockPos pos, EnumFacing dir, QuadLightData out, int flags) {
         AoFaceData faceData = this.getCachedFaceData(pos, dir, ModelQuadFlags.contains(flags, ModelQuadFlags.IS_ALIGNED));
         neighborInfo.mapCorners(faceData.lm, faceData.ao, out.lm, out.br);
     }
@@ -175,7 +176,7 @@ public class SmoothLightPipeline implements LightPipeline {
     /**
      * Returns the cached data for a given facing or calculates it if it hasn't been cached.
      */
-    private AoFaceData getCachedFaceData(BlockPos pos, Direction face, boolean offset) {
+    private AoFaceData getCachedFaceData(BlockPos pos, EnumFacing face, boolean offset) {
         AoFaceData data = this.cachedFaceData[offset ? face.ordinal() : face.ordinal() + 6];
 
         if (!data.hasLightData()) {

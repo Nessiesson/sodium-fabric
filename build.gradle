@@ -1,58 +1,97 @@
 buildscript {
     repositories {
+        jcenter()
         maven { url = "https://files.minecraftforge.net/maven" }
         maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
-        jcenter()
-
+        maven { url = "https://plugins.gradle.org/m2" }
     }
     dependencies {
-        classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "3.+", changing: true
-        classpath group: "org.spongepowered", name: "mixingradle", version: "0.7-SNAPSHOT"
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+        classpath "org.spongepowered:mixingradle:0.6-SNAPSHOT"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
     }
 }
-apply plugin: "net.minecraftforge.gradle"
-apply plugin: "eclipse"
+
+apply plugin: "net.minecraftforge.gradle.forge"
 apply plugin: "org.spongepowered.mixin"
+apply plugin: "com.github.johnrengelman.shadow"
 
 def modId = "${modName}".toLowerCase()
 version = "${modVersion}-${mcVersion}"
 group = "${mavenGroup}.${modId}"
+def loadingPlugin = "${group}.${modName}LoadingPlugin"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaVersion.VERSION_1_8
-
 minecraft {
-    mappings channel: "snapshot", version: "${mcpMapping}-${mcpVersion}"
+    version = "1.12.2-14.23.5.2847"
+    mappings = "stable_39"
+    coreMod = loadingPlugin
+    runDir = "run"
+    makeObfSourceJar = false
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    replaceIn "Reference.java"
+    replace "@VERSION@", project.version
+    replace "@MODNAME@", modName
+    replace "@MODID@", modId
 
-    runs {
-        client {
-            workingDirectory project.file("run")
-            property "forge.logging.console.level", "debug"
+    def args = [
+            "-Dmixin.debug=true"
+    ]
+    clientJvmArgs.addAll(args)
+    serverJvmArgs.addAll(args)
+}
 
-            property "mixin.env.disableRefMap", "true"
-            arg "-mixin.config=${modId}.mixins.json".toString()
+jar.manifest.attributes(
+        "FMLCorePluginContainsFMLMod": true,
+        "FMLCorePlugin": loadingPlugin,
+        "ForceLoadAsMod": true,
+        "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+)
 
-            mods { sodium { source sourceSets.main } }
-        }
-    }
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mcVersion}-${forgeVersion}"
+    compile "org.spongepowered:mixin:0.8.3-SNAPSHOT"
 }
 
 mixin {
-    add sourceSets.main, "${modId}.mixins.refmap.json"
+    add sourceSets.main, "mixins.${modId}.refmap.json"
 }
 
-jar.manifest.attributes([
-        "Specification-Title"     : "${modId}",
-        "Specification-Vendor"    : "${modId}areus",
-        "Specification-Version"   : "1",
-        "Implementation-Title"    : project.name,
-        "Implementation-Version"  : "${version}",
-        "Implementation-Vendor"   : "${modId}areus",
-        "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-        "MixinConfigs"            : "${modId}.mixins.json"
-])
+shadowJar {
+    exclude "dummyThing"
+    exclude "LICENSE.txt"
+    classifier = ""
+}
+build.dependsOn(shadowJar)
 
+reobf {
+    shadowJar {
+        mappingType = "SEARGE"
+    }
+}
+
+processResources {
+    inputs.property "modName", modName
+    inputs.property "modId", modId
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+        include "pack.mcmeta"
+
+        expand "version": project.version, "mcversion": project.minecraft.version, "modName": modName, "modId": modId
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+        exclude "pack.mcmeta"
+    }
+}
+
+runClient {
+    jvmArgs "-Dmixin.debug=true"
+}

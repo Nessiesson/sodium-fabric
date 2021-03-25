@@ -6,6 +6,7 @@ import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
 import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import me.jellysquid.mods.sodium.client.util.color.ColorU8;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
@@ -16,7 +17,7 @@ public class SmoothBiomeColorBlender implements BiomeColorBlender {
     private final BlockPos.Mutable mpos = new BlockPos.Mutable();
 
     @Override
-    public int[] getColors(IBlockColor colorizer, IBlockDisplayReader world, BlockState state, BlockPos origin,
+    public int[] getColors(IBlockColor colorizer, IBlockDisplayReader world, IBlockState state, BlockPos origin,
                            ModelQuadView quad) {
         final int[] colors = this.cachedRet;
 

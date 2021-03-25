@@ -2,7 +2,7 @@ package me.jellysquid.mods.sodium.client.model.light;
 
 import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -18,5 +18,5 @@ public interface LightPipeline {
      * @param face The pre-computed facing vector of the quad
      * @param shade True if the block is shaded by ambient occlusion
      */
-    void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction face, boolean shade);
+    void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, EnumFacing face, boolean shade);
 }

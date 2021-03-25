@@ -6,6 +6,7 @@ import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class FlatLightPipeline implements LightPipeline {
     }
 
     @Override
-    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, Direction face, boolean shade) {
+    public void calculate(ModelQuadView quad, BlockPos pos, QuadLightData out, EnumFacing face, boolean shade) {
         // If the face is aligned, use the light data above it
         if ((quad.getFlags() & ModelQuadFlags.IS_ALIGNED) != 0) {
             Arrays.fill(out.lm, unpackLM(this.lightCache.get(pos, face)));

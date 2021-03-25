@@ -2,6 +2,7 @@ package me.jellysquid.mods.sodium.client.gl.shader;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttribute;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +40,7 @@ public abstract class GlProgram extends GlObject {
 
     /**
      * Retrieves the index of the uniform with the given name.
+     *
      * @param name The name of the uniform to find the index of
      * @return The uniform's index
      * @throws NullPointerException If no uniform exists with the given name
@@ -55,6 +57,7 @@ public abstract class GlProgram extends GlObject {
 
     /**
      * Retrieves the index of the vertex attribute with the given name.
+     *
      * @param name The name of the attribute to find the index of
      * @return The attribute's index
      * @throws NullPointerException If no attribute exists with the given name
@@ -96,13 +99,13 @@ public abstract class GlProgram extends GlObject {
          * set.
          *
          * @param factory The factory which will create the shader program's container
-         * @param <P> The type which should be instantiated with the new program's handle
+         * @param <P>     The type which should be instantiated with the new program's handle
          * @return An instantiated shader container as provided by the factory
          */
         public <P extends GlProgram> P build(ProgramFactory<P> factory) {
             GL20.glLinkProgram(this.program);
 
-            String log = GL20.glGetProgramInfoLog(this.program);
+            String log = GL20.glGetProgramInfoLog(this.program, OpenGlHelper.glGetProgrami(this.program, GL20.GL_INFO_LOG_LENGTH));
 
             if (!log.isEmpty()) {
                 LOGGER.warn("Program link log for " + this.name + ": " + log);

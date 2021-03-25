@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.model.light.smooth;
 
 import me.jellysquid.mods.sodium.client.model.light.data.LightDataAccess;
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 import static me.jellysquid.mods.sodium.client.model.light.cache.ArrayLightDataCache.*;
@@ -15,7 +15,7 @@ class AoFaceData {
 
     private int flags;
 
-    public void initLightData(LightDataAccess cache, BlockPos pos, Direction direction, boolean offset) {
+    public void initLightData(LightDataAccess cache, BlockPos pos, EnumFacing direction, boolean offset) {
         final int x = pos.getX();
         final int y = pos.getY();
         final int z = pos.getZ();
@@ -47,7 +47,7 @@ class AoFaceData {
 
         final float caao = unpackAO(adjWord);
 
-        Direction[] faces = AoNeighborInfo.get(direction).faces;
+        EnumFacing[] faces = AoNeighborInfo.get(direction).faces;
 
         final long e0 = cache.get(adjX, adjY, adjZ, faces[0]);
         final int e0lm = unpackLM(e0);

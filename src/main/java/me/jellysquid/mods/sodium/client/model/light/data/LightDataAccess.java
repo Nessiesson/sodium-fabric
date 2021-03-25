@@ -4,7 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 
@@ -29,19 +29,19 @@ public abstract class LightDataAccess {
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
     protected IBlockDisplayReader world;
 
-    public long get(int x, int y, int z, Direction d1, Direction d2) {
+    public long get(int x, int y, int z, EnumFacing d1, EnumFacing d2) {
         return this.get(x + d1.getXOffset() + d2.getXOffset(),
                 y + d1.getYOffset() + d2.getYOffset(),
                 z + d1.getZOffset() + d2.getZOffset());
     }
 
-    public long get(int x, int y, int z, Direction dir) {
+    public long get(int x, int y, int z, EnumFacing dir) {
         return this.get(x + dir.getXOffset(),
                 y + dir.getYOffset(),
                 z + dir.getZOffset());
     }
 
-    public long get(BlockPos pos, Direction dir) {
+    public long get(BlockPos pos, EnumFacing dir) {
         return this.get(pos.getX(), pos.getY(), pos.getZ(), dir);
     }
 

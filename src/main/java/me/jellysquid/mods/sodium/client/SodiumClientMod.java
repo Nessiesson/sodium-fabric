@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client;
 
+import me.jellysquid.mods.sodium.Reference;
 import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
 import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
 import net.minecraftforge.fml.common.Mod;
@@ -8,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
-@Mod("sodium")
+@Mod(modid = Reference.MODID, name = Reference.NAME, version = Reference.VERSION, clientSideOnly = true)
 public class SodiumClientMod {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final SodiumGameOptions CONFIG = loadConfig();

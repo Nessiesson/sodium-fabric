@@ -242,6 +242,11 @@ public class FixedLongHashTable<V> implements Hash {
         private int index;
 
         @Override
+        public Long getKey() {
+            return getLongKey();
+        }
+
+        @Override
         public long getLongKey() {
             return FixedLongHashTable.this.key[this.index];
         }
@@ -298,6 +303,16 @@ public class FixedLongHashTable<V> implements Hash {
                     return this.pos;
                 }
             }
+        }
+
+        @Override
+        public int skip(int n) {
+            if (n < 0)
+                throw new IllegalArgumentException("Argument must be nonnegative: " + n);
+            int i = n;
+            while (i-- != 0 && hasNext())
+                next();
+            return n - i - 1;
         }
     }
 
